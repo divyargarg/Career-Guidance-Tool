@@ -1,0 +1,194 @@
+---
+title: "USTuition"
+author: "Noble"
+date: "10/25/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+## Install libraries
+
+```{r install eval = false warning = false error = false}
+install.packages("ggplot2")
+install.packages("tidyverse")
+
+packageurl <- "https://github.com/thomasp85/gganimate/archive/v0.1.1.tar.gz"
+install.packages(packageurl, repos=NULL, type="source")
+```
+
+## Read File
+
+
+```{r read file, echo=FALSE}
+library(tidyverse)
+library(readxl)
+tuition <- read_xlsx("data/us_avg_tuition.xlsx")
+regions <- read_xlsx("data/US_REGIONS.xlsx")
+
+```
+
+## Gather dataset and add region information
+
+```{r}
+
+# get case to all lower for id to match
+data <- tuition %>%
+  mutate(id = tolower(State)) %>%
+  gather(year, cost, -id, -State) %>%
+  inner_join(regions, by = "State")
+```
+
+## summarize based on region
+
+```{r}
+
+data_summary <- data %>%
+                  mutate(id = tolower(Geo_Region)) %>%
+                  group_by(Geo_Region,year, id) %>%
+                  summarise(cost = mean(cost))
+
+```
+
+## plot map
+
+```{r}
+
+library(gganimate)
+library(fiftystater)
+
+# map_id creates the aesthetic mapping to the state name column in your data
+p <- ggplot(data, aes(frame = year, map_id = id)) +
+  # map points to the fifty_states shape data
+  geom_map(aes(fill = cost, color = Geo_Region), color = "black", map = fifty_states) +
+  expand_limits(x = fifty_states$long, y = fifty_states$lat) +
+  coord_map() +
+  scale_x_continuous(breaks = NULL) +
+  scale_y_continuous(breaks = NULL) +
+  labs(x = "", y = "") +
+  theme(
+    legend.position = "bottom",
+    panel.background = element_blank(),
+    plot.title = element_text(hjust = 0.5, size = 24),
+    legend.text = element_text(size = 16),
+    legend.title = element_text(size = 16)
+  ) +
+  guides(fill = guide_legend(title = "Tuition Cost")) +
+  ggtitle("US Tuition") +
+  scale_fill_gradient(low = "#f7fcf5", high = "#005a32")
+p
+
+animation::ani.options(interval = .5)
+
+gganimate(p, ani.width = 1250, ani.height = 585, "tuition.gif", title_frame = TRUE)
+
+```
+```{r}
+
+rates <- data_summary %>%
+  mutate(yr_start = mdy(
+    paste0("08-01-", str_split(year, "[-]") %>% map_chr(., ~ .[1]))
+  )) %>%
+  group_by(id) %>%
+  mutate(diff_pct = c(0, diff(cost)) / cost)
+
+ts <- rates %>%
+  ungroup() %>%
+  select(-id, -diff_pct) %>%
+  mutate_if(is.character, as.factor) %>%
+  mutate(ease = "linear", year = as.numeric(year(yr_start) - min(year(yr_start)) + 1))
+
+```
+
+
+## plot yearly Regional trend
+
+```{r warning = false error = false}
+
+library(tweenr)
+library(animation)
+library(magick)
+
+#ts_fil <- ts %>% 
+#  filter(Geo_Region %in% c("Southern","Pacific Coastal","South-West","Rocky Mountain","New England","Midwest"))
+
+plot_tween <- tween_elements(ts, time = "year", group = "Geo_Region", ease = "ease", nframes = 48)
+df_tween <- tween_appear(plot_tween, time = "year", nframes = 48)
+
+# add pause at end of animation
+#df_tween <- df_tween %>% keep_state(20)
+summary(df_tween)
+
+make_plot <- function(i) {
+  plot_data <-
+    df_tween %>%
+    filter(.frame == i, .age > -.5)
+  p <- plot_data %>%
+    ggplot() +
+    geom_line(aes(x = yr_start, y = cost, color = .group), size = 1.3) +
+    geom_point(
+      data = . %>% filter(yr_start == max(yr_start)),
+      mapping = aes(x = yr_start, y = cost, color = .group),
+      size = 3, stroke = 1.5
+    ) +
+    geom_point(
+      data = . %>% filter(yr_start == max(yr_start)),
+      mapping = aes(x = yr_start, y = cost, color = .group), size = 2
+    ) +
+    geom_text(
+      data = . %>% filter(yr_start == max(yr_start)),
+      mapping = aes(
+        x = yr_start, y = cost, label = .group,
+        color = .group
+      ), nudge_x = 7, hjust = -0.4, fontface = "bold"
+    ) +
+    geom_line(data = ts, aes(x = yr_start, y = cost, group = Geo_Region), 
+              alpha = 0.25, color = "darkgray") +
+    theme_minimal(base_family = "sans") +
+    scale_color_manual(values = c("#fec44f", "#253494", "#f46d43", 
+                                  "#1a9850", "#542788", "#993404", "#FF1493")) +
+    scale_x_date(
+      limits = c(as.Date("2004-08-01"), as.Date("2016-01-01")),
+      date_breaks = "1 year", date_labels = "%Y"
+    ) +
+    theme(
+      legend.position = "none",
+      plot.title = element_text(face = "bold", size = 24, hjust = .5),
+      plot.caption = element_text(hjust = .5, size = 10),
+      axis.title.y = element_text(size = 14),
+      axis.text.x = element_text(size = 12),
+      axis.text.y = element_text(size = 12),
+      panel.grid.major.x = element_line(color = "lightgray"),
+      panel.grid.minor.x = element_line(color = "lightgray"),
+      panel.grid.major.y = element_line(color = "lightgray"),
+      panel.grid.minor.y = element_line(color = "lightgray")
+    ) +
+    labs(
+      x = "", y = "Tuition Cost",
+      title = "US Tuition by Region",
+      caption = "US Tuition Cost - Regional Trend"
+    )
+
+  return(p)
+}
+
+oopt <- ani.options(interval = .5)
+saveGIF({
+  for (i in 1:max(df_tween$.frame)) {
+   g <- make_plot(i)
+    print(g)
+   print(paste(i, "out of", max(df_tween$.frame)))
+    ani.pause()
+  }
+}, movie.name = "Region.gif", ani.width = 700, ani.height = 540)
+#for (i in 1:max(df_tween$.frame)) {
+# image_read_video("tuition2.gif")
+#}
+```
+```{r}
+summary(df_tween)
+```
+

@@ -1,0 +1,229 @@
+---
+title: "united_states_tuition"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+```{r}
+#install.packages("devtools")
+#devtools::install_github('thomasp85/gganimate')
+
+install.packages("ggplot2")
+install.packages("tidyverse")
+#devtools::install_version("ggplot2", version = "0.9.1", repos = "http://cran.us.r-project.org")
+
+packageurl <- "https://github.com/thomasp85/gganimate/archive/v0.1.1.tar.gz"
+install.packages(packageurl, repos=NULL, type="source")
+
+#packageloc <- "~/Downloads/gganimate-0.1.1/"
+#install.packages(packageloc, repos = NULL, type="source")
+```
+
+
+```{r tuition}
+library(readxl)
+library(tidyverse)
+tuition <- read_xlsx("data/us_avg_tuition.xlsx")
+regions <- read_xlsx("data/US_REGIONS.xlsx")
+tuition
+regions
+#tuition <- inner_join(tuition,regions, by = "State")
+#tuition
+```
+
+```{r Lower case}
+# get case to all lower for id to match
+data <- tuition %>%
+  mutate(id = tolower(State)) %>%
+  gather(year, cost, -id, -State) %>%
+  inner_join(regions, by = "State")
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r  echo=FALSE}
+library(gganimate)
+library(fiftystater)
+
+# map_id creates the aesthetic mapping to the state name column in your data
+p <- ggplot(data, aes(frame = year, map_id = id)) +
+  # map points to the fifty_states shape data
+  geom_map(aes(fill = cost, color = Geo_Region), color = "black", map = fifty_states) +
+  expand_limits(x = fifty_states$long, y = fifty_states$lat) +
+  coord_map() +
+  scale_x_continuous(breaks = NULL) +
+  scale_y_continuous(breaks = NULL) +
+  labs(x = "", y = "") +
+  theme(
+    legend.position = "bottom",
+    panel.background = element_blank(),
+    plot.title = element_text(hjust = 0.5, size = 24),
+    legend.text = element_text(size = 16),
+    legend.title = element_text(size = 16)
+  ) +
+  guides(fill = guide_legend(title = "Tuition Cost")) +
+  ggtitle("US Tuition") +
+  scale_fill_gradient(low = "#f7fcf5", high = "#005a32")
+p
+
+animation::ani.options(interval = .5)
+
+gganimate(p, ani.width = 1250, ani.height = 585, "tuition.gif", title_frame = TRUE)
+```
+```{r  echo=FALSE}
+library(lubridate)
+## 
+## Attaching package: 'lubridate'
+
+## The following object is masked from 'package:base':
+## 
+##     date
+rates <- data %>%
+  mutate(yr_start = mdy(
+    paste0("08-01-", str_split(year, "[-]") %>% map_chr(., ~ .[1]))
+  )) %>%
+  group_by(id) %>%
+  mutate(diff_pct = c(0, diff(cost)) / cost)
+# map_id creates the aesthetic mapping to the state name column in your data
+p2 <- ggplot(rates, aes(frame = year, map_id = id)) +
+  # map points to the fifty_states shape data
+  geom_map(aes(fill = diff_pct), color = "black", map = fifty_states) +
+  expand_limits(x = fifty_states$long, y = fifty_states$lat) +
+  coord_map() +
+  scale_x_continuous(breaks = NULL) +
+  scale_y_continuous(breaks = NULL) +
+  labs(x = "", y = "") +
+  theme(
+    legend.position = "bottom",
+    panel.background = element_blank(),
+    plot.title = element_text(hjust = 0.5, size = 24),
+    legend.text = element_text(size = 16),
+    legend.title = element_text(size = 16)
+  ) +
+  guides(fill = guide_legend(title = "Annual Percent Change")) +
+  ggtitle("Annual Percent Change in US Tuition") +
+  scale_fill_gradient(
+    low = "white", high = "#005a32",
+    breaks = c(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+  )
+p2
+
+animation::ani.options(interval = 1)
+
+gganimate(p2, ani.width = 1250, ani.height = 585, "rates.gif", title_frame = TRUE)
+```
+```{r echo=FALSE}
+library(geofacet)
+
+ts <- rates %>%
+  ungroup() %>%
+  select(-id, -diff_pct) %>%
+  mutate_if(is.character, as.factor) %>%
+  mutate(ease = "linear", year = as.numeric(year(yr_start) - min(year(yr_start)) + 1))
+
+ggplot(ts, aes(year, cost)) +
+  geom_line() +
+  facet_geo(~ State, grid = "us_state_grid3") +
+  scale_x_continuous(breaks = NULL) +
+  scale_y_continuous(breaks = NULL) +
+  labs(
+    title = "Average US State Tuition Costs 2004-2015",
+    caption = "Data Source: onlinembapage.com",
+    x = "Year",
+    y = "Tuition Cost (%)"
+  ) +
+  theme(strip.text.x = element_text(size = 6), plot.title = element_text(hjust = .5))
+```
+```{r echo = FALSE}
+#### playing with tweenr
+## Code adapted from: http://lenkiefer.com/2018/03/18/pipe-tweenr/
+
+library(tweenr)
+library(animation)
+library(magick)
+
+
+# filter to just interesting states
+ts_fil <- ts %>% 
+  filter(State %in% c("California", "Vermont", "Illinois", "Wyoming", "Washington", "Florida"))
+
+plot_tween <- tween_elements(ts_fil, time = "year", group = "State", ease = "ease", nframes = 48)
+df_tween <- tween_appear(plot_tween, time = "year", nframes = 48)
+
+# add pause at end of animation
+#df_tween <- df_tween %>% keep_state(20)
+summary(df_tween)
+
+make_plot <- function(i) {
+  plot_data <-
+    df_tween %>%
+    filter(.frame == i, .age > -.5)
+  p <- plot_data %>%
+    ggplot() +
+    geom_line(aes(x = yr_start, y = cost, color = .group), size = 1.3) +
+    geom_point(
+      data = . %>% filter(yr_start == max(yr_start)),
+      mapping = aes(x = yr_start, y = cost, color = .group),
+      size = 3, stroke = 1.5
+    ) +
+    geom_point(
+      data = . %>% filter(yr_start == max(yr_start)),
+      mapping = aes(x = yr_start, y = cost, color = .group), size = 2
+    ) +
+    geom_text(
+      data = . %>% filter(yr_start == max(yr_start)),
+      mapping = aes(
+        x = yr_start, y = cost, label = .group,
+        color = .group
+      ), nudge_x = 7, hjust = -0.4, fontface = "bold"
+    ) +
+    geom_line(data = ts, aes(x = yr_start, y = cost, group = State), 
+              alpha = 0.25, color = "darkgray") +
+    theme_minimal(base_family = "sans") +
+    scale_color_manual(values = c("#fec44f", "#253494", "#f46d43", 
+                                  "#1a9850", "#542788", "#993404")) +
+    scale_x_date(
+      limits = c(as.Date("2004-08-01"), as.Date("2016-01-01")),
+      date_breaks = "1 year", date_labels = "%Y"
+    ) +
+    theme(
+      legend.position = "none",
+      plot.title = element_text(face = "bold", size = 24, hjust = .5),
+      plot.caption = element_text(hjust = .5, size = 10),
+      axis.title.y = element_text(size = 14),
+      axis.text.x = element_text(size = 12),
+      axis.text.y = element_text(size = 12),
+      panel.grid.major.x = element_line(color = "lightgray"),
+      panel.grid.minor.x = element_line(color = "lightgray"),
+      panel.grid.major.y = element_line(color = "lightgray"),
+      panel.grid.minor.y = element_line(color = "lightgray")
+    ) +
+    labs(
+      x = "", y = "Tuition Cost",
+      title = "US Tuition by State",
+      caption = "Tidy Tuesday Week 1, Data Source: onlinembapage.com, code with considerable help from @lenkiefer's 3/18/18 blog post"
+    )
+
+  return(p)
+}
+
+oopt <- ani.options(interval = .5)
+saveGIF({
+  for (i in 1:max(df_tween$.frame)) {
+   g <- make_plot(i)
+    print(g)
+   print(paste(i, "out of", max(df_tween$.frame)))
+    ani.pause()
+  }
+}, movie.name = "tuition2.gif", ani.width = 700, ani.height = 540)
+#for (i in 1:max(df_tween$.frame)) {
+# image_read_video("tuition2.gif")
+#}
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
