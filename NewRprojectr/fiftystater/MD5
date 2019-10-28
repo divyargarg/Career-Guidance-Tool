@@ -1,0 +1,16 @@
+3764cdbe61290ae5fd0782dcbcb49573 *DESCRIPTION
+dccb61598cb3f14ab4de482aacdeda9a *NAMESPACE
+939f9e07a28fceab4116234fa81ea945 *NEWS.md
+d345f6183a46a71e5d9beb6c5a62d673 *R/fiftystater.R
+6826f09711bcd16ec91cac1f6058f90b *build/vignette.rds
+c1bfeded2cfd1715077c3d4b9b982b5b *data/fifty_states.rda
+8a9a23b3b1bc1f66c46dcda3388f1891 *data/fifty_states_inset_boxes_data.rda
+391068a308c0a6961f71a3eca9b4bd63 *inst/doc/fiftystater.R
+056910413b1dd81a3bf843591ffdbaaa *inst/doc/fiftystater.Rmd
+a0b50f4c2231c699f74379f7bfdda6eb *inst/doc/fiftystater.html
+3712d9c676cf69d497295750a6e768e6 *inst/extdata/states_21basic.zip
+f8ada4e56d45f74eeec93df53bf8dcf5 *man/fifty_states.Rd
+20daf8650522b557e02a306a178cedf0 *man/fifty_states_inset_boxes.Rd
+76a6f7d028e61596eccbe9a7c0e2aae4 *tests/testthat.R
+83164438ca49d8405b6066e2d4e3ed20 *tests/testthat/test_fifty_states.R
+056910413b1dd81a3bf843591ffdbaaa *vignettes/fiftystater.Rmd

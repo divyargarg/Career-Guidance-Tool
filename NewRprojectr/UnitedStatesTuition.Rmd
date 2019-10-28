@@ -1,0 +1,103 @@
+---
+title: "united_states_tuition"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+```{r}
+install.packages("devtools")
+devtools::install_github('thomasp85/gganimate')
+
+install.packages("ggplot2")
+install.packages("tidyverse")
+devtools::install_version("ggplot2", version = "0.9.1", repos = "http://cran.us.r-project.org")
+install.packages("~/Documents/DesignContest/fiftystater_1.0.1.tar.gz", repos = NULL, type = "source")
+
+##packageurl <- "https://github.com/thomasp85/gganimate/archive/v0.1.1.tar.gz"
+#install.packages(packageurl, repos=NULL, type="source")
+
+##packageloc <- "~/Downloads/gganimate-0.1.1/"
+#install.packages(packageloc, repos = NULL, type="source")
+```
+
+
+```{r tuition}
+library(readxl)
+library(tidyverse)
+tuition <- read_xlsx("data/us_avg_tuition.xlsx")
+regions <- read_xlsx("data/US_REGIONS.xlsx")
+tuition
+regions
+#tuition <- inner_join(tuition,regions, by = "State")
+#tuition
+```
+
+```{r Lower case}
+# get case to all lower for id to match
+data <- tuition %>%
+  mutate(id = tolower(State)) %>%
+  gather(year, cost, -id, -State) %>%
+  inner_join(regions, by = "State")
+```
+
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r  echo=FALSE, warning=FALSE}
+library(gganimate)
+library(fiftystater)
+library(mapproj)
+
+# map_id creates the aesthetic mapping to the state name column in your data
+p <- ggplot(data, aes(frame = year, map_id = id)) +
+  # map points to the fifty_states shape data
+  geom_map(aes(fill = cost, color = Geo_Region), color = "black", map = fifty_states) +
+  expand_limits(x = fifty_states$long, y = fifty_states$lat) +
+  coord_map() +
+  scale_x_continuous(breaks = NULL) +
+  scale_y_continuous(breaks = NULL) +
+  labs(x = "", y = "") +
+  theme(
+    legend.position = "bottom",
+    panel.background = element_blank(),
+    plot.title = element_text(hjust = 0.5, size = 24),
+    legend.text = element_text(size = 16),
+    legend.title = element_text(size = 16)
+  ) +
+  guides(fill = guide_legend(title = "Tuition Cost")) +
+  ggtitle('US Tuition' ) +
+  scale_fill_gradient(low = "#f7fcf5", high = "#005a32")
+p + transition_manual(year)
+
+#animation::ani.options(interval = .5)
+#im.convert(p, f_animation, extra.opts = "-resize 40%")
+
+#gganimate(p, ani.width = 1250, ani.height = 585, "tuition.gif", title_frame = TRUE)
+```
+```{r  echo=FALSE, warning=FALSE}
+library(gganimate)
+cbbPalette <- c("#000000", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+pchg <- data %>%
+    ggplot( aes(x=reorder(State, -desc(cost)) ,y = cost, fill=cost, frame = year)) +
+    geom_col(stat = "identity",position = position_dodge(width = 10))  + 
+    geom_text(aes(label=round(cost)))+
+  coord_flip() + 
+  labs(x = "", y = "") +
+  theme(
+    legend.position = "bottom",
+    panel.background = element_blank(),
+    plot.title = element_text(hjust = 0.5, size = 24),
+    legend.text = element_text(size = 16),
+    legend.title = element_text(size = 16)
+  ) +
+ guides(fill = guide_legend(title = "Tuition Cost" )) +
+  ggtitle('US Tuition ({closest_state})' ) +
+  scale_fill_gradientn(colours = cbbPalette) 
+pchg + transition_states(year, wrap = FALSE) 
+
+```
