@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+  <head>
+    <title>Investigating US Tuition Costs</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Divya, Edwin,Noble" />
+    <link href="libs/remark-css/default.css" rel="stylesheet" />
+    <link href="libs/remark-css/default-fonts.css" rel="stylesheet" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Investigating US Tuition Costs
+## Dataset:avg_us_tuition
+### Divya, Edwin,Noble
+### DSBA 5122
+### 2019/10/28
+
+---
+
+background-image: url("giphy.gif")
+background-size: Contain
+---
+# Dataset
+
+This data set includes all the States of United States and Cost corresponding to each year.
+
+
+
+```r
+data=read.csv("tuition.csv")
+knitr::kable(head(data), format = 'html')
+```
+
+&lt;table&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt; State &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; X2004.05 &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; X2005.06 &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; X2006.07 &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; X2007.08 &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; X2008.09 &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; X2009.10 &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; X2010.11 &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; X2011.12 &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; X2012.13 &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; X2013.14 &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; X2014.15 &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; X2015.16 &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Alabama &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; $5,683 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; $5,841 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; $5,753 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; $6,008 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; $6,475 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; $7,189 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; $8,071 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; $8,452 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; $9,098 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; $9,359 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; $9,496 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; $9,751 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Alaska &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; $4,328 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; $4,633 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; $4,919 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; $5,070 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; $5,075 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; $5,455 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; $5,759 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; $5,762 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; $6,026 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; $6,012 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; $6,149 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; $6,571 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Arizona &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; $5,138 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; $5,416 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; $5,481 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; $5,682 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; $6,058 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; $7,263 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; $8,840 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; $9,967 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; $10,134 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; $10,296 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; $10,414 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; $10,646 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Arkansas &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; $5,772 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; $6,082 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; $6,232 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; $6,415 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; $6,417 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; $6,627 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; $6,901 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; $7,029 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; $7,287 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; $7,408 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; $7,606 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; $7,867 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; California &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; $5,286 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; $5,528 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; $5,335 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; $5,672 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; $5,898 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; $7,259 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; $8,194 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; $9,436 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; $9,361 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; $9,274 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; $9,187 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; $9,270 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Colorado &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; $4,704 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; $5,407 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; $5,596 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; $6,227 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; $6,284 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; $6,948 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; $7,748 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; $8,316 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; $8,793 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; $9,293 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; $9,299 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; $9,748 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+---
+#Tidy Tuesday Submission by Dana Paige Seidel
+##- twitter:dpseidel
+##- github:dpseidel
+
+[US Rising Tuition Cost](https://twitter.com/search?q=%23TidyTuesday%20%40dpseidel&amp;src=typed_query)
+---
+background-image: url("tuition.gif")
+background-size: cover
+---
+#Good Design Aspects
+- The &lt;b&gt;geographical representation&lt;/b&gt; of makes it easier to map states, can help in analyzing &lt;b&gt;cost region wise.&lt;/b&gt;
+- It is using color scheme to indicate light colors as low cost and dark color for high tuition cost.&lt;b&gt;(Chloropeth mapping)
+As mentioned in Wilke  Ch.15&lt;/b&gt;
+
+---
+#Ways to Improve 
+- Color scheme is not suitable for &lt;b&gt;color blind&lt;/b&gt;.(Ogabe-Ito color scheme to be aware of color blindness as cited in Wilke Ch. 19”)
+- There are &lt;b&gt;missing labels&lt;/b&gt; on the plot to map states.
+- Tuition cost should be &lt;b&gt;binned in ranges&lt;/b&gt;.While continuous color scales tend to look visually appealing, they can be difficult to read.&lt;b&gt;(Ch 15 Wilke)&lt;/b&gt; 
+- It would be nice to see actual&lt;b&gt; fee/cost value as it changes&lt;/b&gt; on the same graph.
+- Comparing the cost across states for the given years is difficult in this report. &lt;b&gt; This won't tell us the order or rank of states based on tuition cost. &lt;/b&gt;
+- This won't give us the &lt;b&gt;true trend of cost&lt;/b&gt; for any states over these given years.
+
+---
+background-image: url("animation.gif")
+background-size: contain
+
+---
+#Good Design Aspects
+- Easier to &lt;b&gt;compare trends&lt;/b&gt; between intresting states.
+- Can &lt;b&gt;Visualize trends&lt;/b&gt; of all the years. 
+---
+#Ways to Improve
+-  Color scheme is not suitable for &lt;b&gt;color blind&lt;/b&gt;.(Ogabe-Ito color scheme to be aware of color blindness as cited in Wilke Ch. 19”)
+- There are only few states, cannot &lt;b&gt;compare the costs&lt;/b&gt; between all the states.
+---
+background-image: url("region.gif")
+background-size: contain
+
+---
+class: inverse, middle, center
+
+# Modified version
+
+---
+background-image: url('modified.gif')
+background-size: contain
+
+---
+class: inverse, middle, center
+
+# What we aim to do using shiny
+
+---
+#Nice to have 
+- &lt;b&gt;Rank/order of states&lt;/b&gt; based on cost per year  - easy comparison.
+- We are dealing with geospatial data so &lt;b&gt;map representation&lt;/b&gt; will be good.
+- Options to filter data based on states or regions - pick only the ones which we are interested in.
+- We have data spread across 12 years, so a trend line report will be good for &lt;b&gt;analysing the change of cost over these years.&lt;/b&gt;
+- Ideal solution will be an &lt;b&gt;interactive shiny dashboard&lt;/b&gt; including all the above reports which will help answer all questions in one view
+---
+background-image: url("US_Map_By_Region.JPG")
+background-size: contain
+
+---
+background-image: url("US_State_Checkbox.JPG")
+background-size: contain
+---
+class: inverse, middle, center
+#Thanks, Question?
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

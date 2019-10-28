@@ -1,0 +1,97 @@
+---
+title: "Investigating US Tuition Costs"
+subtitle: "Dataset:avg_us_tuition"
+author: "Divya, Edwin,Noble"
+institute: "DSBA 5122"
+date: "2019/10/28"
+output:
+  xaringan::moon_reader:
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+---
+background-image: url("giphy.gif")
+background-size: Contain
+---
+# Dataset
+
+This data set includes all the States of United States and Cost corresponding to each year.
+
+
+```{r}
+data=read.csv("tuition.csv")
+knitr::kable(head(data), format = 'html')
+```
+---
+#Tidy Tuesday Submission by Dana Paige Seidel
+##- twitter:dpseidel
+##- github:dpseidel
+
+[US Rising Tuition Cost](https://twitter.com/search?q=%23TidyTuesday%20%40dpseidel&src=typed_query)
+---
+background-image: url("tuition.gif")
+background-size: cover
+---
+#Good Design Aspects
+- The <b>geographical representation</b> of makes it easier to map states, can help in analyzing <b>cost region wise.</b>
+- It is using color scheme to indicate light colors as low cost and dark color for high tuition cost.<b>(Chloropeth mapping)
+As mentioned in Wilke  Ch.15</b>
+
+---
+#Ways to Improve 
+- Color scheme is not suitable for <b>color blind</b>.(Ogabe-Ito color scheme to be aware of color blindness as cited in Wilke Ch. 19”)
+- There are <b>missing labels</b> on the plot to map states.
+- Tuition cost should be <b>binned in ranges</b>.While continuous color scales tend to look visually appealing, they can be difficult to read.<b>(Ch 15 Wilke)</b> 
+- It would be nice to see actual<b> fee/cost value as it changes</b> on the same graph.
+- Comparing the cost across states for the given years is difficult in this report. <b> This won't tell us the order or rank of states based on tuition cost. </b>
+- This won't give us the <b>true trend of cost</b> for any states over these given years.
+
+---
+background-image: url("animation.gif")
+background-size: contain
+
+---
+#Good Design Aspects
+- Easier to <b>compare trends</b> between intresting states.
+- Can <b>Visualize trends</b> of all the years. 
+---
+#Ways to Improve
+-  Color scheme is not suitable for <b>color blind</b>.(Ogabe-Ito color scheme to be aware of color blindness as cited in Wilke Ch. 19”)
+- There are only few states, cannot <b>compare the costs</b> between all the states.
+---
+background-image: url("region.gif")
+background-size: contain
+
+---
+class: inverse, middle, center
+
+# Modified version
+
+---
+background-image: url('modified.gif')
+background-size: contain
+
+---
+class: inverse, middle, center
+
+# What we aim to do using shiny
+
+---
+#Nice to have 
+- <b>Rank/order of states</b> based on cost per year  - easy comparison.
+- We are dealing with geospatial data so <b>map representation</b> will be good.
+- Options to filter data based on states or regions - pick only the ones which we are interested in.
+- We have data spread across 12 years, so a trend line report will be good for <b>analysing the change of cost over these years.</b>
+- Ideal solution will be an <b>interactive shiny dashboard</b> including all the above reports which will help answer all questions in one view
+---
+background-image: url("US_Map_By_Region.JPG")
+background-size: contain
+
+---
+background-image: url("US_State_Checkbox.JPG")
+background-size: contain
+---
+class: inverse, middle, center
+#Thanks, Question?
